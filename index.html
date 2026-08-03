@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GauraPrompter - Professional Offline Teleprompter</title>
+  <!-- Google Fonts Fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-container">
+      <div class="loading-logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <span class="logo-text">GauraPrompter</span>
+      </div>
+      <div class="loading-bar-wrapper">
+        <div class="loading-bar" id="loadingBar"></div>
+      </div>
+      <p class="loading-status">Initializing System...</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Main Dashboard View -->
+  <div id="dashboard" class="view">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </div>
+        <div>
+          <h1>GauraPrompter</h1>
+          <p class="subtitle">Professional Offline Teleprompter</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnAbout" class="btn btn-secondary-icon" title="About GauraPrompter" aria-label="About">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </button>
+        <button id="btnShortcuts" class="btn btn-secondary-icon" title="Keyboard Shortcuts" aria-label="Keyboard Shortcuts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="6" y1="8" x2="6" y2="8"></line><line x1="10" y1="8" x2="10" y2="8"></line><line x1="14" y1="8" x2="14" y2="8"></line><line x1="18" y1="8" x2="18" y2="8"></line><line x1="6" y1="12" x2="6" y2="12"></line><line x1="10" y1="12" x2="14" y2="12"></line><line x1="18" y1="12" x2="18" y2="12"></line><line x1="7" y1="16" x2="17" y2="16"></line></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <!-- Left Column: Script Editor -->
+      <section class="editor-section card">
+        <div class="card-header">
+          <h2>Script Editor</h2>
+          <div class="editor-meta">
+            <span id="autosaveIndicator" class="autosave-tag">
+              <svg class="icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+              Saved
+            </span>
+          </div>
+        </div>
+        <div class="editor-container">
+          <textarea 
+            id="scriptEditor" 
+            placeholder="Type, paste, or import your script here to get started..." 
+            spellcheck="false" 
+            autocomplete="off"
+            aria-label="Script Input"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Right Column: Settings & Live Statistics -->
+      <section class="sidebar-section">
+        
+        <!-- Action Buttons -->
+        <div class="action-grid">
+          <button id="btnStart" class="btn btn-primary btn-large">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Start Prompter
+          </button>
+          <div class="button-row">
+            <label for="fileImport" class="btn btn-secondary flex-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Import TXT
+            </label>
+            <input type="file" id="fileImport" accept=".txt" style="display: none;">
+            <button id="btnExport" class="btn btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export TXT
+            </button>
+          </div>
+          <div class="button-row">
+            <button id="btnClear" class="btn btn-danger-outline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              Clear Script
+            </button>
+            <button id="btnReset" class="btn btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+              Reset Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Statistics -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Live Statistics</h3>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Words</span>
+              <span id="statWords" class="stat-value">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Characters</span>
+              <span id="statChars" class="stat-value">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Paragraphs</span>
+              <span id="statParagraphs" class="stat-value">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Lines</span>
+              <span id="statLines" class="stat-value">0</span>
+            </div>
+            <div class="stat-box span-2">
+              <span class="stat-label">Est. Speaking Time (130 wpm)</span>
+              <span id="statSpeakTime" class="stat-value">00:00:00</span>
+            </div>
+            <div class="stat-box span-2">
+              <span class="stat-label">Est. Reading Time (200 wpm)</span>
+              <span id="statReadTime" class="stat-value">00:00:00</span>
+            </div>
+            <div class="stat-box span-2">
+              <span class="stat-label">Current File Size</span>
+              <span id="statFileSize" class="stat-value">0 B</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="card settings-card">
+          <div class="card-header">
+            <h3>Settings</h3>
+          </div>
+          <div class="settings-content">
+            
+            <!-- Font Style Settings -->
+            <div class="settings-group">
+              <span class="settings-group-title">Typography</span>
+              
+              <div class="setting-item">
+                <label for="selectFontSize">Font Size</label>
+                <select id="selectFontSize">
+                  <option value="tiny">Tiny</option>
+                  <option value="small">Small</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="large">Large</option>
+                  <option value="xlarge">Extra Large</option>
+                  <option value="massive">Massive</option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label for="selectFontFamily">Font Family</label>
+                <select id="selectFontFamily">
+                  <option value="Inter" selected>Inter</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier New">Courier New</option>
+                </select>
+              </div>
+
+              <div class="setting-item">
+                <label>Text Alignment</label>
+                <div class="align-btn-group" role="radiogroup" aria-label="Text Alignment">
+                  <button type="button" class="btn-align active" data-align="left" aria-label="Align Left">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                  </button>
+                  <button type="button" class="btn-align" data-align="center" aria-label="Align Center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+                  </button>
+                  <button type="button" class="btn-align" data-align="right" aria-label="Align Right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+                  </button>
+                  <button type="button" class="btn-align" data-align="justify" aria-label="Align Justify">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="slider-header">
+                  <label for="rangeLineSpacing">Line Spacing</label>
+                  <span id="valLineSpacing" class="slider-val">1.5x</span>
+                </div>
+                <input type="range" id="rangeLineSpacing" min="1" max="3" step="0.1" value="1.5">
+              </div>
+
+              <div class="setting-item">
+                <div class="slider-header">
+                  <label for="rangeLetterSpacing">Letter Spacing</label>
+                  <span id="valLetterSpacing" class="slider-val">0px</span>
+                </div>
+                <input type="range" id="rangeLetterSpacing" min="-2" max="10" step="0.5" value="0">
+              </div>
+            </div>
+
+            <!-- Scroll Options Settings -->
+            <div class="settings-group">
+              <span class="settings-group-title">Engine Speed & Style</span>
+              
+              <div class="setting-item">
+                <div class="slider-header">
+                  <label for="rangeScrollSpeed">Scroll Speed</label>
+                  <span id="valScrollSpeed" class="slider-val">5</span>
+                </div>
+                <input type="range" id="rangeScrollSpeed" min="1" max="20" step="1" value="5">
+              </div>
+
+              <div class="setting-item">
+                <label>Theme Colors</label>
+                <div class="color-picker-row">
+                  <div class="color-picker-wrapper">
+                    <label for="inputTextColor" class="sub-label">Text</label>
+                    <div class="color-picker-input-group">
+                      <input type="color" id="inputTextColor" value="#ffffff">
+                      <span id="lblTextColor" class="hex-display">#FFFFFF</span>
+                    </div>
+                  </div>
+                  <div class="color-picker-wrapper">
+                    <label for="inputBgColor" class="sub-label">Background</label>
+                    <div class="color-picker-input-group">
+                      <input type="color" id="inputBgColor" value="#0a0a0c">
+                      <span id="lblBgColor" class="hex-display">#0A0A0C</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Prompter Options -->
+            <div class="settings-group">
+              <span class="settings-group-title">Display Options</span>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Mirror Mode (Horizontal Flip)</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkMirror">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Vertical Flip</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkVerticalFlip">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Show Cue Line Guide</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkCueLine" checked>
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Hide Controls Automatically</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkAutoHideControls" checked>
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Hide Mouse Cursor Automatically</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkAutoHideCursor" checked>
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Auto Fullscreen Mode</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkAutoFullscreen" checked>
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <span class="toggle-label">Smooth Scroll Engine</span>
+                <label class="switch">
+                  <input type="checkbox" id="chkSmoothScroll" checked>
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Prompter Mode View -->
+  <div id="prompter" class="view hidden">
+    <!-- Top Progress Bar Container -->
+    <div class="prompter-progress-wrapper" id="progressWrapper">
+      <div class="prompter-progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Cue Line Guides -->
+    <div class="cue-line-overlay" id="cueLineOverlay">
+      <div class="cue-arrow-left"></div>
+      <div class="cue-line"></div>
+      <div class="cue-arrow-right"></div>
+    </div>
+
+    <!-- Prompter Text Viewport Area -->
+    <div class="prompter-viewport" id="prompterViewport">
+      <div class="prompter-scroller" id="prompterScroller">
+        <!-- Text injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Floating Stats HUD Overlay -->
+    <div class="status-overlay" id="statusOverlay">
+      <div class="hud-card">
+        <span class="hud-label">Speed</span>
+        <span class="hud-value" id="hudSpeed">5</span>
+      </div>
+      <div class="hud-card">
+        <span class="hud-label">Progress</span>
+        <span class="hud-value" id="hudProgress">0%</span>
+      </div>
+      <div class="hud-card">
+        <span class="hud-label">Remaining</span>
+        <span class="hud-value" id="hudRemaining">00:00</span>
+      </div>
+    </div>
+
+    <!-- Glassmorphic Floating Control Bar -->
+    <div class="prompter-control-bar" id="prompterControls">
+      <button id="pBtnExit" class="control-btn" title="Exit Prompter Mode (ESC)" aria-label="Exit Prompter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div class="control-divider"></div>
+
+      <button id="pBtnSlower" class="control-btn" title="Slower (Arrow Down)" aria-label="Slower">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>
+      </button>
+
+      <button id="pBtnPlayPause" class="control-btn play-btn" title="Play/Pause (Space)" aria-label="Play/Pause">
+        <svg id="playIcon" class="icon-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <svg id="pauseIcon" class="icon-hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+      </button>
+
+      <button id="pBtnFaster" class="control-btn" title="Faster (Arrow Up)" aria-label="Faster">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>
+      </button>
+
+      <div class="control-divider"></div>
+
+      <button id="pBtnReset" class="control-btn" title="Reset Text Position (R)" aria-label="Reset position">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+      </button>
+
+      <button id="pBtnMirror" class="control-btn" title="Toggle Mirror Mode (M)" aria-label="Toggle Mirror">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"></path><path d="M22 6s-4 6-10 6M2 18s4-6 10-6"></path></svg>
+      </button>
+
+      <button id="pBtnFlip" class="control-btn" title="Toggle Vertical Flip (V)" aria-label="Toggle Vertical Flip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"></polyline><polyline points="17 13 12 18 7 13"></polyline></svg>
+      </button>
+
+      <button id="pBtnFullscreen" class="control-btn" title="Toggle Fullscreen Mode (F)" aria-label="Toggle Fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      </button>
+    </div>
+
+    <!-- Floating Enter Fullscreen Warning Indicator -->
+    <button id="btnEnterFullscreenFloating" class="btn btn-fullscreen-floating hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      Enter Fullscreen
+    </button>
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div id="modalAbout" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalAboutTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalAboutTitle">About GauraPrompter</h3>
+          <button class="modal-close" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="about-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <h4>GauraPrompter</h4>
+            <span class="badge">Version 2.0.0</span>
+          </div>
+          <p>An enterprise-grade, offline-first web teleprompter solution built for high-performance scripting, presentations, video editing, and public speaking.</p>
+          <p>Running entirely inside your browser's execution thread, your data is secure, processed locally, and never touches remote servers. Zero external runtime dependencies ensures system consistency, stability, and maximum uptime.</p>
+          <div class="feature-tags">
+            <span>Offline-First</span>
+            <span>Autosave System</span>
+            <span>Real-Time Engine</span>
+            <span>Glassmorphic Layout</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS MODAL -->
+  <div id="modalShortcuts" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalShortcutsTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modalShortcutsTitle">Keyboard Shortcuts</h3>
+          <button class="modal-close" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body">
+          <ul class="shortcuts-list">
+            <li>
+              <span class="shortcut-key">Space</span>
+              <span class="shortcut-desc">Play / Pause Scroller Engine</span>
+            </li>
+            <li>
+              <span class="shortcut-key">Arrow Up</span>
+              <span class="shortcut-desc">Increase Engine Scroll Speed (+1)</span>
+            </li>
+            <li>
+              <span class="shortcut-key">Arrow Down</span>
+              <span class="shortcut-desc">Decrease Engine Scroll Speed (-1)</span>
+            </li>
+            <li>
+              <span class="shortcut-key">Arrow Left</span>
+              <span class="shortcut-desc">Micro-scroll Upward Slightly</span>
+            </li>
+            <li>
+              <span class="shortcut-key">Arrow Right</span>
+              <span class="shortcut-desc">Micro-scroll Downward Slightly</span>
+            </li>
+            <li>
+              <span class="shortcut-key">M</span>
+              <span class="shortcut-desc">Toggle Mirror Mode (Horizontal Flip)</span>
+            </li>
+            <li>
+              <span class="shortcut-key">V</span>
+              <span class="shortcut-desc">Toggle Vertical Flip Direction</span>
+            </li>
+            <li>
+              <span class="shortcut-key">H</span>
+              <span class="shortcut-desc">Force Hide / Show All HUD Overlay Controls</span>
+            </li>
+            <li>
+              <span class="shortcut-key">R</span>
+              <span class="shortcut-desc">Reset Prompter Layout Position to Top</span>
+            </li>
+            <li>
+              <span class="shortcut-key">F</span>
+              <span class="shortcut-desc">Toggle Fullscreen Display State</span>
+            </li>
+            <li>
+              <span class="shortcut-key">ESC</span>
+              <span class="shortcut-desc">Exit Back to Main Script Dashboard</span>
+            </li>
+            <li>
+              <span class="shortcut-key">?</span>
+              <span class="shortcut-desc">Open Keyboard Shortcuts Panel</span>
+            </li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Close Controls</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION: CLEAR SCRIPTS MODAL -->
+  <div id="modalConfirmClear" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Clear Script Workspace</h3>
+          <button class="modal-close" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to permanently clear your current script workspace? This operation will discard all active layout modifications and cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Cancel</button>
+          <button id="btnConfirmClearAction" class="btn btn-danger">Clear Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION: RESET SETTINGS MODAL -->
+  <div id="modalConfirmReset" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Reset Layout Configuration</h3>
+          <button class="modal-close" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to revert all local variables and device controls back to default configurations? This will reinitialize scroll speed, typographic sizes, margins, alignments, and background theme structures.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close-btn">Cancel</button>
+          <button id="btnConfirmResetAction" class="btn btn-danger">Reset Configuration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Execution Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
